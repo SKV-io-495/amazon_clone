@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import { Star } from 'lucide-react';
 import Button from './ui/Button';
+import { addToCart } from '@/lib/actions/cart';
+import { useTransition } from 'react';
 
 interface Product {
   id: string;
@@ -25,13 +27,21 @@ export default function ProductCard({ product }: ProductCardProps) {
   const rating = parseFloat(product.rating || '0');
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
+  const [isPending, startTransition] = useTransition();
 
   const handleAddToCart = () => {
-    console.log('Add to cart:', product.id, product.title);
+    startTransition(async () => {
+      const result = await addToCart(product.id);
+      if (result.success) {
+        alert('Added to Cart');
+      } else {
+        alert('Failed to add to cart');
+      }
+    });
   };
 
   return (
-    <div className="bg-white p-4 flex flex-col h-full group">
+    <div className="bg-white p-4 flex flex-col h-full group border border-transparent hover:border-gray-200 transition-colors">
       {/* Image */}
       <div className="relative w-full aspect-square mb-3 overflow-hidden">
         <Image
@@ -101,8 +111,9 @@ export default function ProductCard({ product }: ProductCardProps) {
             size="sm"
             className="w-full"
             onClick={handleAddToCart}
+            disabled={isPending}
           >
-            Add to Cart
+            {isPending ? 'Adding...' : 'Add to Cart'}
           </Button>
         </div>
       </div>
