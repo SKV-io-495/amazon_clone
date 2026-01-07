@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --amazon-blue: #131921;
+  --amazon-blue-light: #232f3e;
+  --amazon-yellow: #ffd814;
+  --amazon-orange: #ffa41c;
+  --amazon-link: #007185;
+  --amazon-price: #B12704;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f3f3f3; /* Light Amazon gray background */
+}
