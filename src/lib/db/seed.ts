@@ -1,12 +1,18 @@
 
-import { db } from './index';
-import { products, carts, orders, orderItems } from './schema';
 import * as dotenv from 'dotenv';
-
 dotenv.config();
 
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { products } from './schema/products';
+import { carts } from './schema/carts';
+import { orders, orderItems } from './schema/orders';
+
+const sql = neon(process.env.DATABASE_URL!);
+const db = drizzle(sql);
+
 const dummyProducts = [
-  // Electronics
+  // Electronics (Existing & Expanded) - 8 items
   {
     title: 'Sony WH-1000XM5 Wireless Noise Canceling Headphones, Black',
     description: 'Industry-leading noise cancellation, 30-hour battery life, and crystal-clear hands-free calling.',
@@ -91,8 +97,206 @@ const dummyProducts = [
     stock: 500,
     isPrime: false,
   },
+  {
+    title: 'GoPro HERO12 Black - Waterproof Action Camera with 5.3K60 Ultra HD Video',
+    description: 'Incredible image quality, HyperSmooth 6.0 video stabilization and huge battery life boost.',
+    price: '349.00',
+    rating: '4.5',
+    reviewCount: 2100,
+    image: 'https://placehold.co/600x600?text=GoPro+Hero12',
+    images: [],
+    category: 'Electronics',
+    stock: 60,
+    isPrime: true,
+  },
 
-  // Books
+  // Computers (New) - 5 items
+  {
+    title: 'Apple MacBook Air 15-inch Laptop with M2 chip: 15.3-inch Liquid Retina Display, 8GB Unified Memory, 256GB SSD Storage',
+    description: 'Impossibly thin and incredibly fast M2 chip. All-day battery life and a stunning Liquid Retina display.',
+    price: '1099.00',
+    rating: '4.8',
+    reviewCount: 1500,
+    image: 'https://placehold.co/600x600?text=MacBook+Air',
+    images: ['https://placehold.co/600x600?text=MacBook+Side'],
+    category: 'Computers',
+    stock: 45,
+    isPrime: true,
+  },
+  {
+    title: 'Acer Aspire 5 Slim Laptop, 15.6 inches Full HD IPS Display, AMD Ryzen 3 3200U',
+    description: 'Powerful and portable, the Aspire 5 delivers on every aspect of everyday computing.',
+    price: '299.99',
+    rating: '4.3',
+    reviewCount: 35000,
+    image: 'https://placehold.co/600x600?text=Acer+Laptop',
+    images: [],
+    category: 'Computers',
+    stock: 200,
+    isPrime: true,
+  },
+  {
+    title: 'Dell Inspiron 15 3000 Series 3511 Laptop, 15.6" FHD Touchscreen, Intel Core i5-1135G7',
+    description: 'Designed running more efficiently and more reliably at faster speeds.',
+    price: '529.00',
+    rating: '4.4',
+    reviewCount: 890,
+    image: 'https://placehold.co/600x600?text=Dell+Inspiron',
+    images: [],
+    category: 'Computers',
+    stock: 75,
+    isPrime: false,
+  },
+  {
+    title: 'ASUS TUF Gaming F15 Gaming Laptop, 15.6” 144Hz FHD IPS-Type Display, Intel Core i5-10300H',
+    description: 'Geared for serious gaming and real-world durability, the TUF Gaming F15 is a fully-loaded Windows 10 Pro gaming laptop.',
+    price: '649.99',
+    rating: '4.6',
+    reviewCount: 5400,
+    image: 'https://placehold.co/600x600?text=ASUS+Gaming',
+    images: [],
+    category: 'Computers',
+    stock: 60,
+    isPrime: true,
+  },
+  {
+    title: 'HP Pavilion 15 Laptop, 11th Gen Intel Core i7-1165G7, 16 GB RAM, 512 GB SSD',
+    description: 'Enjoy mind-blowing entertainment with a micro-edge screen and Audio by B&O.',
+    price: '785.00',
+    rating: '4.5',
+    reviewCount: 1200,
+    image: 'https://placehold.co/600x600?text=HP+Pavilion',
+    images: [],
+    category: 'Computers',
+    stock: 90,
+    isPrime: true,
+  },
+
+  // Smart Home (Expanded) - 5 items
+  {
+    title: 'Echo Dot (5th Gen, 2022 release) | With bigger vibrant sound, helpful routines and Alexa',
+    description: 'Our best sounding Echo Dot yet – Enjoy an improved audio experience compared to any previous Echo Dot.',
+    price: '49.99',
+    rating: '4.7',
+    reviewCount: 65000,
+    image: 'https://placehold.co/600x600?text=Echo+Dot',
+    images: [],
+    category: 'Smart Home',
+    stock: 1000,
+    isPrime: true,
+  },
+  {
+    title: 'Ring Video Doorbell – 1080p HD video, improved motion detection, easy installation',
+    description: 'See, hear, and speak to anyone at your door from your phone, tablet, or PC.',
+    price: '99.99',
+    rating: '4.6',
+    reviewCount: 145000,
+    image: 'https://placehold.co/600x600?text=Ring+Doorbell',
+    images: [],
+    category: 'Smart Home',
+    stock: 300,
+    isPrime: true,
+  },
+  {
+    title: 'Philips Hue White and Color Ambiance A19 E26 LED Smart Bulb, Bluetooth & Zigbee',
+    description: 'Go bright, go bold with millions of colors and shades of white light, synced to your music and movies.',
+    price: '44.99',
+    rating: '4.7',
+    reviewCount: 12000,
+    image: 'https://placehold.co/600x600?text=Philips+Hue',
+    images: [],
+    category: 'Smart Home',
+    stock: 500,
+    isPrime: true,
+  },
+  {
+    title: 'Kasa Smart Plug HS103P4, Smart Home Wi-Fi Outlet Works with Alexa, Echo, Google Home',
+    description: 'Control your appliances from anywhere. Voice control with Alexa and Google Assistant.',
+    price: '24.99',
+    rating: '4.8',
+    reviewCount: 34000,
+    image: 'https://placehold.co/600x600?text=Kasa+Plug',
+    images: [],
+    category: 'Smart Home',
+    stock: 600,
+    isPrime: true,
+  },
+  {
+    title: 'Google Nest Thermostat - Smart Thermostat for Home - Programmable Wifi Thermostat',
+    description: 'Energy saving smart thermostat that turns itself down when you leave the house.',
+    price: '115.00',
+    rating: '4.5',
+    reviewCount: 18000,
+    image: 'https://placehold.co/600x600?text=Nest+Thermostat',
+    images: [],
+    category: 'Smart Home',
+    stock: 150,
+    isPrime: true,
+  },
+
+  // Arts & Crafts (New) - 5 items
+  {
+    title: 'Crayola Inspiration Art Case Coloring Set, Kids Art Supplies, 140 Count',
+    description: 'Premier art storage case with 140 pieces, including crayons, pencils, and markers.',
+    price: '29.99',
+    rating: '4.8',
+    reviewCount: 45000,
+    image: 'https://placehold.co/600x600?text=Crayola+Set',
+    images: [],
+    category: 'Arts & Crafts',
+    stock: 400,
+    isPrime: true,
+  },
+  {
+    title: 'Singer 4423 Heavy Duty Sewing Machine With Included Accessory Kit',
+    description: '23 built-in stitches, automatic needle threader, and heavy duty metal frame.',
+    price: '199.99',
+    rating: '4.6',
+    reviewCount: 22000,
+    image: 'https://placehold.co/600x600?text=Singer+Sewing',
+    images: [],
+    category: 'Arts & Crafts',
+    stock: 80,
+    isPrime: true,
+  },
+  {
+    title: 'Prismacolor Premier Colored Pencils, Soft Core, 72 Pack',
+    description: 'Soft, thick cores are perfect for shading and shadows. Ultra-smooth color laydown.',
+    price: '54.00',
+    rating: '4.9',
+    reviewCount: 38000,
+    image: 'https://placehold.co/600x600?text=Prismacolor',
+    images: [],
+    category: 'Arts & Crafts',
+    stock: 250,
+    isPrime: true,
+  },
+  {
+    title: 'Liquitex BASICS Acrylic Paint, 48-Piece Set, 22ml Tubes',
+    description: 'Thick, creamy with satin finish; Good pigment load.',
+    price: '45.00',
+    rating: '4.8',
+    reviewCount: 8900,
+    image: 'https://placehold.co/600x600?text=Acrylic+Paint',
+    images: [],
+    category: 'Arts & Crafts',
+    stock: 120,
+    isPrime: true,
+  },
+  {
+    title: 'Cricut Explore 3 Machine - Smart Cutting Machine, 2X Faster & 10X Force',
+    description: 'Cut, draw, score, and more with the ultimate DIY machine.',
+    price: '249.00',
+    rating: '4.8',
+    reviewCount: 12500,
+    image: 'https://placehold.co/600x600?text=Cricut+Machine',
+    images: [],
+    category: 'Arts & Crafts',
+    stock: 50,
+    isPrime: true,
+  },
+
+  // Books (Existing & Expanded) - 8 items
   {
     title: 'Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones',
     description: 'No matter your goals, Atomic Habits offers a proven framework for improving--every day.',
@@ -153,8 +357,44 @@ const dummyProducts = [
     stock: 150,
     isPrime: true,
   },
+  {
+    title: 'The 48 Laws of Power by Robert Greene',
+    description: 'Amoral, cunning, ruthless, and instructive, this multi-million-copy New York Times bestseller is the definitive manual for anyone interested in gaining, observing, or defending against ultimate control.',
+    price: '16.99',
+    rating: '4.7',
+    reviewCount: 85000,
+    image: 'https://placehold.co/600x600?text=48+Laws+of+Power',
+    images: [],
+    category: 'Books',
+    stock: 600,
+    isPrime: true,
+  },
+  {
+    title: 'Thinking, Fast and Slow by Daniel Kahneman',
+    description: 'The major New York Times bestseller that has captivated the world: explains the two systems that drive the way we think.',
+    price: '14.99',
+    rating: '4.6',
+    reviewCount: 35000,
+    image: 'https://placehold.co/600x600?text=Thinking+Fast+Slow',
+    images: [],
+    category: 'Books',
+    stock: 400,
+    isPrime: true,
+  },
+  {
+    title: 'Sapiens: A Brief History of Humankind',
+    description: 'In Sapiens, Dr Yuval Noah Harari spans the whole of human history, from the very first humans to walk the earth to the radical – and sometimes devastating – breakthroughs of the Cognitive, Agricultural and Scientific Revolutions.',
+    price: '15.50',
+    rating: '4.7',
+    reviewCount: 68000,
+    image: 'https://placehold.co/600x600?text=Sapiens',
+    images: [],
+    category: 'Books',
+    stock: 500,
+    isPrime: true,
+  },
 
-  // Home
+  // Home (Existing) - 7 items
   {
     title: 'Dyson V15 Detect Cordless Vacuum Cleaner',
     description: 'Dyson’s most powerful, intelligent cordless vacuum. Laser reveals microscopic dust.',
@@ -204,18 +444,6 @@ const dummyProducts = [
     isPrime: true,
   },
   {
-    title: 'Philips Hue White and Color Ambiance A19 E26 LED Smart Bulb, Bluetooth & Zigbee',
-    description: 'Go bright, go bold with millions of colors and shades of white light, synced to your music and movies.',
-    price: '44.99',
-    rating: '4.7',
-    reviewCount: 12000,
-    image: 'https://placehold.co/600x600?text=Philips+Hue',
-    images: [],
-    category: 'Home',
-    stock: 500,
-    isPrime: true,
-  },
-  {
     title: 'DeWalt 20V MAX Cordless Drill / Driver Kit, Compact, 1/2-Inch',
     description: 'Compact, lightweight design fits into tight areas. High performance motor delivers 300 unit watts out (UWO) of power ability.',
     price: '99.00',
@@ -251,6 +479,68 @@ const dummyProducts = [
     stock: 450,
     isPrime: true,
   },
+
+  // Fashion (New) - 5 items
+  {
+    title: 'Carhartt Men\'s Loose Fit Heavyweight Short-Sleeve Pocket T-Shirt',
+    description: 'Rib-knit crewneck that holds its shape throughout the workday.',
+    price: '19.99',
+    rating: '4.6',
+    reviewCount: 88000,
+    image: 'https://placehold.co/600x600?text=Carhartt+Shirt',
+    images: [],
+    category: 'Fashion',
+    stock: 800,
+    isPrime: true,
+  },
+  {
+    title: 'Adidas Men\'s Daily 3.0 Skate Shoe',
+    description: 'Men\'s skate-inspired shoes for every day.',
+    price: '65.00',
+    rating: '4.7',
+    reviewCount: 15000,
+    image: 'https://placehold.co/600x600?text=Adidas+Shoe',
+    images: [],
+    category: 'Fashion',
+    stock: 120,
+    isPrime: true,
+  },
+  {
+    title: 'Hanes Women\'s EcoSmart Crewneck Sweatshirt',
+    description: 'Soft, plush, 50% cotton/50% polyester fleece.',
+    price: '15.00',
+    rating: '4.5',
+    reviewCount: 42000,
+    image: 'https://placehold.co/600x600?text=Hanes+Sweatshirt',
+    images: [],
+    category: 'Fashion',
+    stock: 300,
+    isPrime: false,
+  },
+  {
+    title: 'Ray-Ban RB2140 Original Wayfarer Sunglasses',
+    description: 'Classic Wayfarer sunglasses featuring crystal glass lenses and a durable acetate frame.',
+    price: '163.00',
+    rating: '4.6',
+    reviewCount: 14000,
+    image: 'https://placehold.co/600x600?text=RayBan+Wayfarer',
+    images: [],
+    category: 'Fashion',
+    stock: 60,
+    isPrime: true,
+  },
+  {
+    title: 'Levi\'s Men\'s 501 Original Fit Jeans',
+    description: 'The original blue jean since 1873. Original straight fit.',
+    price: '79.50',
+    rating: '4.4',
+    reviewCount: 56000,
+    image: 'https://placehold.co/600x600?text=Levis+501',
+    images: [],
+    category: 'Fashion',
+    stock: 150,
+    isPrime: true,
+  },
 ];
 
 async function main() {
@@ -258,11 +548,13 @@ async function main() {
 
   try {
     // Clean up existing data
-    console.log('Can\'t delete due to cascade issues? No, drizzle handles this typically, but let\'s proceed carefully.');
-    // await db.delete(orderItems);
-    // await db.delete(orders);
-    // await db.delete(carts);
-    // await db.delete(products);
+    console.log('Cleaning up existing data...');
+    // Order matters for foreign key constraints
+    await db.delete(orderItems);
+    await db.delete(orders);
+    await db.delete(carts);
+    await db.delete(products);
+    console.log('Deleted existing data.');
 
     // Insert products
     console.log('Inserting products...');

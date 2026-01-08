@@ -1,20 +1,24 @@
-'use server';
-
 import { db } from '@/lib/db';
 import { products } from '@/lib/db/schema';
-import { like, eq } from 'drizzle-orm';
+import { eq, ilike, and } from 'drizzle-orm';
 
 export async function getProducts(query?: string, category?: string) {
   try {
-    let result = await db.select().from(products);
+    const filters = [];
     
-    // Future: Add filtering logic here
-    // if (query) {
-    //   result = result.filter(p => p.title.toLowerCase().includes(query.toLowerCase()));
-    // }
-    // if (category) {
-    //   result = result.filter(p => p.category === category);
-    // }
+    if (query) {
+      filters.push(ilike(products.title, `%${query}%`));
+    }
+    
+    if (category) {
+      filters.push(eq(products.category, category));
+    }
+
+    const whereClause = filters.length > 0 ? and(...filters) : undefined;
+    
+    const result = await db.select()
+      .from(products)
+      .where(whereClause);
     
     return result;
   } catch (error) {

@@ -4,15 +4,34 @@ import { db } from '@/lib/db';
 import { carts, products } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { DEFAULT_USER_ID } from '@/lib/constants';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { headers, cookies } from 'next/headers';
+
+// Helper to get User ID (Auth or Guest)
+export async function getUserId(ensureId = false) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (session?.user?.id) return session.user.id;
+
+  const cookieStore = await cookies();
+  const guestId = cookieStore.get('guest_id')?.value;
+
+  if (guestId) return guestId;
+
+  if (!ensureId) {
+    return null;
+  }
+
+  // Generate new guest ID if none exists (Only allowed in Server Actions / Route Handlers)
+  const newGuestId = crypto.randomUUID();
+  cookieStore.set('guest_id', newGuestId);
+  return newGuestId;
+}
 
 // Add to Cart
 export async function addToCart(productId: string) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
-    const userId = session?.user?.id || DEFAULT_USER_ID;
+    const userId = await getUserId(true);
+    if (!userId) throw new Error("User ID is required");
 
     // Check if item exists
     const existingItem = await db.select()
@@ -50,8 +69,8 @@ export async function addToCart(productId: string) {
 export async function updateQuantity(itemId: string, quantity: number) {
   try {
     if (quantity < 1) return;
-    const session = await auth.api.getSession({ headers: await headers() });
-    const userId = session?.user?.id || DEFAULT_USER_ID;
+    const userId = await getUserId(true);
+    if (!userId) return;
     
     await db.update(carts)
       .set({ quantity })
@@ -70,8 +89,8 @@ export async function updateQuantity(itemId: string, quantity: number) {
 // Delete Item
 export async function deleteItem(itemId: string) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
-    const userId = session?.user?.id || DEFAULT_USER_ID;
+    const userId = await getUserId(true);
+    if (!userId) return;
 
     await db.delete(carts)
       .where(and(
@@ -89,8 +108,8 @@ export async function deleteItem(itemId: string) {
 // Get Cart Items
 export async function getCart() {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
-    const userId = session?.user?.id || DEFAULT_USER_ID;
+    const userId = await getUserId(false);
+    if (!userId) return [];
 
     const items = await db.select({
       id: carts.id,
@@ -116,8 +135,8 @@ export async function getCart() {
 // Get Cart Count
 export async function getCartCount() {
     try {
-        const session = await auth.api.getSession({ headers: await headers() });
-        const userId = session?.user?.id || DEFAULT_USER_ID;
+        const userId = await getUserId(false);
+        if (!userId) return 0;
 
         const result = await db.select({ count: sql<number>`sum(${carts.quantity})` })
             .from(carts)

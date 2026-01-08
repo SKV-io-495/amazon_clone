@@ -2,9 +2,9 @@ import { db } from '@/lib/db';
 import { products } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import { Star } from 'lucide-react';
 import BuyBox from '@/components/BuyBox';
+import ProductGallery from '@/components/ProductGallery';
 
 interface PageProps {
   params: Promise<{
@@ -26,6 +26,10 @@ export default async function ProductPage({ params }: PageProps) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
 
+  const imageList = (product.images && product.images.length > 0) 
+    ? product.images 
+    : [product.image];
+
   return (
     <div className="bg-white min-h-screen pb-10">
       <div className="max-w-screen-2xl mx-auto p-4">
@@ -37,28 +41,7 @@ export default async function ProductPage({ params }: PageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-9 gap-10">
           {/* Col 1: Images (Span 4) */}
           <div className="lg:col-span-4 flex gap-4">
-             {/* Thumbnails (Left side vertical list for desktop) */}
-             <div className="hidden lg:flex flex-col gap-3">
-                {[1, 2, 3, 4].map((i) => (
-                   <div key={i} className={`w-12 h-12 border rounded cursor-pointer p-1 ${i === 1 ? 'border-[var(--amazon-orange)] shadow-sm' : 'border-gray-300'}`}>
-                      <div className="relative w-full h-full">
-                         <Image src={product.image} alt="thumbnail" fill className="object-contain" unoptimized />
-                      </div>
-                   </div>
-                ))}
-             </div>
-             
-             {/* Main Image */}
-             <div className="flex-1 relative aspect-square max-h-[600px] border border-gray-100 lg:border-none">
-                <Image 
-                   src={product.image}
-                   alt={product.title}
-                   fill
-                   className="object-contain" // Changed to contain to show full product
-                   priority
-                   unoptimized
-                />
-             </div>
+             <ProductGallery images={imageList} title={product.title} />
           </div>
 
           {/* Col 2: Details (Span 3) */}

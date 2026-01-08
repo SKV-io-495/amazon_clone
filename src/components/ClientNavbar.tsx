@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Search, ShoppingCart, Menu, MapPin, X, ChevronRight, User } from 'lucide-react';
 import { useState } from 'react';
@@ -15,6 +16,23 @@ interface ClientNavbarProps {
 
 export default function ClientNavbar({ cartIcon, session }: ClientNavbarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('q') || '');
+
+  const handleSearch = () => {
+    if (query.trim()) {
+      router.push(`/?q=${encodeURIComponent(query.trim())}`);
+    } else {
+      router.push('/');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
   
   const handleSignIn = async () => {
     await authClient.signIn.social({
@@ -58,8 +76,14 @@ export default function ClientNavbar({ cartIcon, session }: ClientNavbarProps) {
               type="text"
               placeholder="Search Amazon"
               className="flex-1 p-2 text-black text-sm outline-none"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
-            <button className="bg-[var(--amazon-orange)] p-2 hover:bg-[#fa8900]">
+            <button 
+              className="bg-[var(--amazon-orange)] p-2 hover:bg-[#fa8900]"
+              onClick={handleSearch}
+            >
               <Search className="text-gray-800" size={20} />
             </button>
           </div>
@@ -179,19 +203,31 @@ export default function ClientNavbar({ cartIcon, session }: ClientNavbarProps) {
                      </ul>
                   </div>
 
-                  <div className="px-4 py-3 border-b border-gray-200">
+                   <div className="px-4 py-3 border-b border-gray-200">
                      <h3 className="font-bold text-lg text-black mb-2">Shop By Department</h3>
                      <ul className="space-y-3 text-sm text-gray-700 font-medium">
-                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                        <li 
+                           className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded"
+                           onClick={() => { router.push(`/?category=${encodeURIComponent('Electronics')}`); setIsSidebarOpen(false); }}
+                        >
                            Electronics <ChevronRight size={16} className="text-gray-500" />
                         </li>
-                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                        <li 
+                           className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded"
+                           onClick={() => { router.push(`/?category=${encodeURIComponent('Computers')}`); setIsSidebarOpen(false); }}
+                        >
                            Computers <ChevronRight size={16} className="text-gray-500" />
                         </li>
-                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                        <li 
+                           className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded"
+                           onClick={() => { router.push(`/?category=${encodeURIComponent('Smart Home')}`); setIsSidebarOpen(false); }}
+                        >
                            Smart Home <ChevronRight size={16} className="text-gray-500" />
                         </li>
-                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                        <li 
+                           className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded"
+                           onClick={() => { router.push(`/?category=${encodeURIComponent('Arts & Crafts')}`); setIsSidebarOpen(false); }}
+                        >
                            Arts & Crafts <ChevronRight size={16} className="text-gray-500" />
                         </li>
                      </ul>

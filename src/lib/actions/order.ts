@@ -8,20 +8,17 @@ import { revalidatePath } from 'next/cache';
 import { sendOrderConfirmation } from '@/lib/email';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
+import { getUserId } from './cart'; // Ensure this uses the helper from Task 1
 
 export async function placeOrder(formData: FormData) {
-  // 1. Get the Real User Session
+  // 1. Get the Real User Session or Guest ID
   const session = await auth.api.getSession({
     headers: await headers()
   });
 
-  // Guard Clause: Redirect if not logged in
-  if (!session?.user?.id) {
-    redirect('/sign-in');
-  }
-
-  const userId = session.user.id;
-  const userEmail = session.user.email;
+  const userId = await getUserId();
+  // Fallback to guest email if not logged in
+  const userEmail = session?.user?.email || formData.get('email') as string || 'guest@example.com';
 
   const address = formData.get('address') as string;
   const city = formData.get('city') as string;
@@ -30,8 +27,10 @@ export async function placeOrder(formData: FormData) {
   
   const fullAddress = `${name}\n${address}\n${city}, ${zip}`;
 
+  let newOrderId = '';
+
   try {
-    // 2. Get Cart Items (For the REAL User)
+    // 2. Get Cart Items (For the REAL User/Guest)
     const cartItems = await db.select({
       productId: carts.productId,
       quantity: carts.quantity,
@@ -39,9 +38,13 @@ export async function placeOrder(formData: FormData) {
     })
     .from(carts)
     .innerJoin(products, eq(carts.productId, products.id))
-    .where(eq(carts.userId, userId)); // <--- FIXED: Using real userId
+    .where(eq(carts.userId, userId)); 
 
     if (cartItems.length === 0) {
+      // Logic to handle empty cart, but we might redirect or error
+      // throw new Error('Cart is empty'); 
+      // Instead of throwing which crashes in server action, maybe just return or redirect
+      // But let's keep it close to original logic for consistency
       throw new Error('Cart is empty');
     }
 
@@ -50,11 +53,13 @@ export async function placeOrder(formData: FormData) {
 
     // 4. Create Order
     const [newOrder] = await db.insert(orders).values({
-      userId: userId, // <--- FIXED: Using real userId
+      userId: userId,
       total: total.toFixed(2),
       status: 'pending',
       addressSnapshot: fullAddress,
     }).returning({ id: orders.id });
+    
+    newOrderId = newOrder.id;
 
     // 5. Create Order Items
     for (const item of cartItems) {
@@ -66,9 +71,13 @@ export async function placeOrder(formData: FormData) {
       });
     }
 
-    // 6. Send Email (Real Resend Logic)
-    // We strictly use the session email, ensuring the notification goes to the logged-in user.
-    await sendOrderConfirmation(userEmail, newOrder.id);
+    // 6. Send Email 
+    try {
+        await sendOrderConfirmation(userEmail, newOrder.id);
+    } catch (emailError) {
+        console.error('Email failed but order placed:', emailError);
+        // Continue to success page even if email fails
+    }
     
     // 7. Clear Cart
     await db.delete(carts).where(eq(carts.userId, userId));
@@ -78,7 +87,6 @@ export async function placeOrder(formData: FormData) {
   } catch (error) {
     console.error('Order failed:', error);
     // VERCEL FIX: Throwing ensures return type compatibility with the form action.
-    // Do NOT return { error: ... } here.
     throw new Error('Order processing failed'); 
   }
 

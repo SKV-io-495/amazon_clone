@@ -1,8 +1,14 @@
 import { getProducts } from '@/lib/actions/product';
 import ProductCard from '@/components/ProductCard';
 
-export default async function Home() {
-  const products = await getProducts();
+export default async function Home(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const searchParams = await props.searchParams;
+  const query = typeof searchParams.q === 'string' ? searchParams.q : undefined;
+  const category = typeof searchParams.category === 'string' ? searchParams.category : undefined;
+
+  const products = await getProducts(query, category);
 
   return (
     <main className="min-h-screen bg-[#e3e6e6]">
