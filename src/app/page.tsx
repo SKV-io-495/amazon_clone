@@ -7,17 +7,23 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-[#e3e6e6]">
       {/* Hero Section */}
-      <div className="relative w-full h-[300px] md:h-[400px] overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-gradient-to-b from-[var(--amazon-blue-light)] to-transparent"
-          style={{
-            backgroundImage: 'url(https://placehold.co/1500x600/232f3e/ffffff?text=Shop+the+Latest+Deals)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        {/* Fade overlay */}
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#e3e6e6] to-transparent" />
+      {/* Hero Section */}
+      {/* Hero Section */}
+      <div className="relative w-full h-[300px] md:h-[400px] overflow-hidden bg-[var(--amazon-blue-light)]">
+         {/* Decorative background gradient */}
+         <div className="absolute inset-0 bg-gradient-to-tr from-[#131921] to-transparent opacity-60" />
+         
+        {/* Hero Text Overlay */}
+        <div className="relative h-full flex flex-col justify-center items-center text-center z-10 pb-16">
+          <h1 className="text-3xl md:text-5xl font-bold text-white drop-shadow-md px-4">
+            Shop the Latest Deals
+          </h1>
+          <p className="text-gray-200 mt-3 text-sm md:text-lg max-w-2xl px-4">
+            Don&apos;t miss out on these limited-time offers across all your favorite categories.
+          </p>
+        </div>
+        
+
       </div>
 
       {/* Product Grid */}

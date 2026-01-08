@@ -131,6 +131,7 @@ export default function ClientNavbar({ cartIcon, session }: ClientNavbarProps) {
           <Link href="/registry" className="hover:border hover:border-white px-1 py-0.5 rounded whitespace-nowrap">Registry</Link>
           <Link href="/gift-cards" className="hover:border hover:border-white px-1 py-0.5 rounded whitespace-nowrap">Gift Cards</Link>
           <Link href="/sell" className="hover:border hover:border-white px-1 py-0.5 rounded whitespace-nowrap">Sell</Link>
+          <Link href="/wishlist" className="hover:border hover:border-white px-1 py-0.5 rounded whitespace-nowrap">Wishlist</Link>
         </div>
       </header>
 
@@ -146,33 +147,88 @@ export default function ClientNavbar({ cartIcon, session }: ClientNavbarProps) {
            {/* Sidebar Panel */}
            <div className="relative w-[365px] h-full bg-white flex flex-col md:w-[365px] w-[80%] overflow-y-auto animate-in slide-in-from-left duration-300">
               {/* Header */}
-              <div className="bg-[var(--amazon-blue-light)] text-white p-4 font-bold text-lg flex items-center gap-3">
-                 <User size={24} className="bg-white text-[var(--amazon-blue-light)] rounded-full p-0.5" />
-                 Hello, sign in
+              <div className="bg-[var(--amazon-blue-light)] text-white p-4 font-bold text-lg flex items-center justify-between">
+                 <div className="flex items-center gap-3">
+                    <User size={24} className="bg-white text-[var(--amazon-blue-light)] rounded-full p-0.5" />
+                    Hello, sign in
+                 </div>
+                 {/* Close Button - Now inside header for mobile visibility */}
+                 <button 
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="text-white p-1 hover:bg-white/10 rounded"
+                 >
+                    <X size={24} />
+                 </button>
               </div>
-              
-              {/* Close Button */}
-              <button 
-                 onClick={() => setIsSidebarOpen(false)}
-                 className="absolute top-2 -right-10 text-white p-2"
-              >
-                 <X size={32} />
-              </button>
 
               {/* Content */}
               <div className="py-2">
                  {/* ... Sidebar categories (reused from before) ... */}
-                 <div className="px-4 py-3 border-b border-gray-200">
-                    <h3 className="font-bold text-lg text-black mb-2">Digital Content & Devices</h3>
-                    <ul className="space-y-3 text-sm text-gray-700 font-medium">
-                       <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
-                          Amazon Music <ChevronRight size={16} className="text-gray-500" />
-                       </li>
-                       <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
-                          Kindle E-readers & Books <ChevronRight size={16} className="text-gray-500" />
-                       </li>
-                    </ul>
-                 </div>
+                  <div className="px-4 py-3 border-b border-gray-200">
+                     <h3 className="font-bold text-lg text-black mb-2">Digital Content & Devices</h3>
+                     <ul className="space-y-3 text-sm text-gray-700 font-medium">
+                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           Amazon Music <ChevronRight size={16} className="text-gray-500" />
+                        </li>
+                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           Kindle E-readers & Books <ChevronRight size={16} className="text-gray-500" />
+                        </li>
+                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           Amazon Appstore <ChevronRight size={16} className="text-gray-500" />
+                        </li>
+                     </ul>
+                  </div>
+
+                  <div className="px-4 py-3 border-b border-gray-200">
+                     <h3 className="font-bold text-lg text-black mb-2">Shop By Department</h3>
+                     <ul className="space-y-3 text-sm text-gray-700 font-medium">
+                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           Electronics <ChevronRight size={16} className="text-gray-500" />
+                        </li>
+                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           Computers <ChevronRight size={16} className="text-gray-500" />
+                        </li>
+                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           Smart Home <ChevronRight size={16} className="text-gray-500" />
+                        </li>
+                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           Arts & Crafts <ChevronRight size={16} className="text-gray-500" />
+                        </li>
+                     </ul>
+                  </div>
+
+                  <div className="px-4 py-3 border-b border-gray-200">
+                     <h3 className="font-bold text-lg text-black mb-2">Programs & Features</h3>
+                     <ul className="space-y-3 text-sm text-gray-700 font-medium">
+                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           Gift Cards <ChevronRight size={16} className="text-gray-500" />
+                        </li>
+                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           Shop By Interest <ChevronRight size={16} className="text-gray-500" />
+                        </li>
+                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           Amazon Live <ChevronRight size={16} className="text-gray-500" />
+                        </li>
+                        <li className="flex items-center justify-between cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           International Shopping <ChevronRight size={16} className="text-gray-500" />
+                        </li>
+                     </ul>
+                  </div>
+
+                  <div className="px-4 py-3">
+                     <h3 className="font-bold text-lg text-black mb-2">Help & Settings</h3>
+                     <ul className="space-y-3 text-sm text-gray-700 font-medium">
+                        <li className="cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">Your Account</li>
+                        <li className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           <MapPin size={16} /> English
+                        </li>
+                        <li className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">
+                           <span className="fi fi-us"></span> United States
+                        </li>
+                        <li className="cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">Customer Service</li>
+                        <li className="cursor-pointer hover:bg-gray-100 p-2 -mx-2 rounded">Sign In</li>
+                     </ul>
+                  </div>
                  {/* Simplified for brevity as we already wrote this fully in previous step */}
               </div>
            </div>
