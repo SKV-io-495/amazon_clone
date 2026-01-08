@@ -1,16 +1,26 @@
 import { db } from '@/lib/db';
 import { wishlists, products } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
-import { DEFAULT_USER_ID } from '@/lib/constants';
 import ProductCard from '@/components/ProductCard';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import AuthRequired from '@/components/AuthRequired';
 
 export default async function WishlistPage() {
+  const session = await auth.api.getSession({
+     headers: await headers()
+  });
+
+  if (!session) {
+     return <AuthRequired title="Your Wish List" />;
+  }
+
   const wishlistItems = await db.select({
       product: products
   })
     .from(wishlists)
     .innerJoin(products, eq(wishlists.productId, products.id))
-    .where(eq(wishlists.userId, DEFAULT_USER_ID))
+    .where(eq(wishlists.userId, session.user.id))
     .orderBy(desc(wishlists.createdAt));
 
   return (

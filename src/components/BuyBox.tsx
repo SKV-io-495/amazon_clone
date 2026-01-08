@@ -27,8 +27,16 @@ export default function BuyBox({ productId, price, stock, title, image }: BuyBox
   };
 
   const handleAddToWishlist = async () => {
-     await toggleWishlist(productId);
-     alert('Added to Wishlist');
+     const result = await toggleWishlist(productId);
+     if (result && 'error' in result) {
+         if (result.requiresAuth) {
+             window.location.href = '/wishlist';
+         } else {
+             alert('Failed to add to wishlist');
+         }
+     } else {
+         alert('Added to Wishlist');
+     }
   };
 
   return (

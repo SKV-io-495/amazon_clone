@@ -45,11 +45,25 @@ export default function ProductCard({ product }: ProductCardProps) {
     });
   };
 
-  const handleToggleWishlist = (e: React.MouseEvent) => {
+  const handleToggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault(); 
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted); 
-    toggleWishlist(product.id);
+    
+    // Optimistic Update
+    const previousState = isWishlisted;
+    setIsWishlisted(!previousState); 
+    
+    const result = await toggleWishlist(product.id);
+    
+    if (result && 'error' in result) {
+       // Revert or redirect
+       setIsWishlisted(previousState);
+       if (result.requiresAuth) {
+           window.location.href = '/wishlist'; // Redirect to guarded page
+       } else {
+           alert('Failed to update wishlist');
+       }
+    }
   };
 
   return (

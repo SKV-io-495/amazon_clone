@@ -3,7 +3,6 @@
 import { db } from '@/lib/db';
 import { wishlists } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { DEFAULT_USER_ID } from '@/lib/constants';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
@@ -11,7 +10,12 @@ import { headers } from 'next/headers';
 export async function toggleWishlist(productId: string) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
-    const userId = session?.user?.id || DEFAULT_USER_ID;
+    
+    if (!session) {
+      return { error: 'Not authenticated', requiresAuth: true };
+    }
+
+    const userId = session.user.id;
 
     const existing = await db.select()
       .from(wishlists)
@@ -29,16 +33,17 @@ export async function toggleWishlist(productId: string) {
         ));
       revalidatePath('/');
       revalidatePath('/wishlist');
-      return { action: 'removed' };
+      return { action: 'removed', success: true };
     } else {
       // Add
       await db.insert(wishlists).values({
         userId: userId,
         productId: productId,
+        // id: crypto.randomUUID() // Drizzle might auto-gen if configured, let's check schema/default
       });
       revalidatePath('/');
       revalidatePath('/wishlist');
-      return { action: 'added' };
+      return { action: 'added', success: true };
     }
   } catch (error) {
     console.error('Wishlist toggle error:', error);
@@ -46,16 +51,4 @@ export async function toggleWishlist(productId: string) {
   }
 }
 
-export async function getWishlistItems() {
-    try {
-        const session = await auth.api.getSession({ headers: await headers() });
-        const userId = session?.user?.id || DEFAULT_USER_ID;
-
-        const items = await db.select()
-            .from(wishlists)
-            .where(eq(wishlists.userId, userId));
-        return items.map(item => item.productId);
-    } catch (error) {
-        return [];
-    }
-}
+// Removing getWishlistItems if unused (checked via grep)
