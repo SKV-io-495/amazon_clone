@@ -17,6 +17,11 @@ export async function placeOrder(formData: FormData) {
   });
 
   const userId = await getUserId();
+
+  if (!userId) {
+    throw new Error("User identifier missing");
+  }
+
   // Fallback to guest email if not logged in
   const userEmail = session?.user?.email || formData.get('email') as string || 'guest@example.com';
 
