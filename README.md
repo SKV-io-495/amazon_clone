@@ -29,11 +29,11 @@ High-level overview of the application's data flow and integrations.
 
 ```mermaid
 graph TD
-    Client[Client (Browser)]
-    SA[Next.js Server Actions]
-    DB[(PostgreSQL / Neon)]
-    Auth[Better-Auth]
-    Email[Resend API]
+    Client["Client (Browser)"]
+    SA["Next.js Server Actions"]
+    DB[("PostgreSQL / Neon")]
+    Auth["Better-Auth"]
+    Email["Resend API"]
 
     Client <-->|Interacts| SA
     SA <-->|Queries/Mutates| DB
