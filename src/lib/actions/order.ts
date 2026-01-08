@@ -6,6 +6,7 @@ import { eq, and } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { DEFAULT_USER_ID } from '@/lib/constants';
+import { sendOrderConfirmation } from '../email';
 
 export async function placeOrder(formData: FormData) {
   const address = formData.get('address') as string;
@@ -51,6 +52,12 @@ export async function placeOrder(formData: FormData) {
       });
     }
 
+    // 4.5. Send Email
+    // Since we don't have user email in this simple schema (only userId), we'll mock it or assume a default email.
+    // In a real app, we'd fetch the user's email or use the one from the form if provided (but checkout form only asked for shipping info).
+    // Use a placeholder email.
+    await sendOrderConfirmation('customer@example.com', newOrder.id);
+    
     // 5. Clear Cart
     await db.delete(carts).where(eq(carts.userId, DEFAULT_USER_ID));
 

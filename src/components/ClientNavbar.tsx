@@ -72,10 +72,10 @@ export default function ClientNavbar({ cartIcon }: ClientNavbarProps) {
             </div>
 
             {/* Orders */}
-            <div className="hidden md:block border border-transparent hover:border-white p-1 rounded cursor-pointer">
+            <Link href="/orders" className="hidden md:block border border-transparent hover:border-white p-1 rounded cursor-pointer">
               <p className="text-xs text-gray-300">Returns</p>
               <p className="text-sm font-bold">& Orders</p>
-            </div>
+            </Link>
 
             {/* Cart Slot */}
             {cartIcon}
