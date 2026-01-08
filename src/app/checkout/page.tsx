@@ -1,7 +1,19 @@
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import AuthRequired from '@/components/AuthRequired';
+
 import { placeOrder } from '@/lib/actions/order';
 import Button from '@/components/ui/Button';
 
-export default function CheckoutPage() {
+export default async function CheckoutPage() {
+  const session = await auth.api.getSession({
+      headers: await headers()
+  });
+
+  if (!session) {
+      return <AuthRequired title="Checkout" />;
+  }
+
   return (
     <div className="min-h-screen bg-white p-4 lg:p-8 max-w-[1000px] mx-auto">
       <h1 className="text-3xl font-medium border-b border-gray-200 pb-4 mb-6">Checkout</h1>

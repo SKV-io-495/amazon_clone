@@ -6,12 +6,21 @@ import { Search, ShoppingCart, Menu, MapPin, X, ChevronRight, User } from 'lucid
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
+import { authClient } from '@/lib/auth-client';
+
 interface ClientNavbarProps {
   cartIcon: React.ReactNode;
+  session: any; // Type accurately if possible, usually inferred or from better-auth types
 }
 
-export default function ClientNavbar({ cartIcon }: ClientNavbarProps) {
+export default function ClientNavbar({ cartIcon, session }: ClientNavbarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  const handleSignIn = async () => {
+    await authClient.signIn.social({
+      provider: "google"
+    });
+  };
 
   return (
     <>
@@ -19,42 +28,39 @@ export default function ClientNavbar({ cartIcon }: ClientNavbarProps) {
         {/* Main Nav */}
         <nav className="bg-[var(--amazon-blue)] text-white px-4 py-2 flex items-center gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-1 border border-transparent hover:border-white p-1 rounded">
-             <Image 
-                src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg"
-                alt="Amazon Logo"
-                width={96}
-                height={40}
-                className="brightness-0 invert object-contain"
-                priority
-             />
-             
+          <Link href="/" className="flex items-center pt-2">
+            <Image
+              src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg"
+              alt="Amazon Logo"
+              width={100}
+              height={30}
+              className="object-contain brightness-0 invert"
+              priority
+              unoptimized
+            />
           </Link>
 
-          {/* Deliver To */}
-          <div className="hidden md:flex items-center gap-1 border border-transparent hover:border-white p-1 rounded cursor-pointer">
-            <MapPin size={18} className="mt-2" />
-            <div className="text-xs">
-              <p className="text-gray-300">Deliver to</p>
-              <p className="font-bold">India</p>
+          {/* Location (Hidden on mobile) */}
+          <div className="hidden md:flex flex-col text-sm cursor-pointer hover:outline outline-1 outline-white p-1 rounded-sm">
+            <span className="text-gray-300 text-xs pl-4">Deliver to</span>
+            <div className="flex items-center font-bold">
+              <MapPin size={16} />
+              <span>India</span>
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="flex-1 flex h-10">
-            <select className="hidden md:block bg-gray-100 text-black text-xs px-2 rounded-l border-r border-gray-300 outline-none cursor-pointer focus:ring-2 focus:ring-[var(--amazon-orange)]">
-              <option>All</option>
-              <option>Electronics</option>
-              <option>Books</option>
-              <option>Home</option>
-            </select>
+          <div className="flex-1 flex items-center bg-white rounded overflow-hidden">
+            <div className="bg-gray-100 p-2 text-gray-500 text-xs border-r border-gray-300 cursor-pointer hidden sm:block">
+              All
+            </div>
             <input
               type="text"
-              placeholder="Search Amazon.clone"
-              className="flex-1 px-3 py-2 text-black text-sm outline-none border-none focus:ring-0"
+              placeholder="Search Amazon"
+              className="flex-1 p-2 text-black text-sm outline-none"
             />
-            <button className="bg-[var(--amazon-yellow)] hover:bg-[var(--amazon-orange)] px-4 rounded-r transition-colors flex items-center justify-center">
-              <Search size={22} className="text-black" />
+            <button className="bg-[var(--amazon-orange)] p-2 hover:bg-[#fa8900]">
+              <Search className="text-gray-800" size={20} />
             </button>
           </div>
 
@@ -65,10 +71,40 @@ export default function ClientNavbar({ cartIcon }: ClientNavbarProps) {
                 EN
              </div>
 
-            {/* Account */}
-            <div className="hidden md:block border border-transparent hover:border-white p-1 rounded cursor-pointer">
-              <p className="text-xs text-gray-300">Hello, sign in</p>
-              <p className="text-sm font-bold">Account & Lists</p>
+            {/* Auth / Account */}
+            <div className="hidden md:flex flex-col text-sm cursor-pointer hover:outline outline-1 outline-white p-1 rounded-sm group relative">
+              {session ? (
+                <>
+                    <div className="flex items-center gap-2">
+                       {session.user.image ? (
+                          <Image src={session.user.image} alt="User" width={30} height={30} className="rounded-full" />
+                       ) : (
+                          <User size={24} />
+                       )}
+                       <div className="flex flex-col">
+                          <span className="text-xs">Hello, {session.user.name}</span>
+                          <span className="font-bold">Account</span>
+                       </div>
+                    </div>
+                    {/* Dropdown for Logout */}
+                    <div className="absolute top-full right-0 w-48 bg-white text-black shadow-md rounded hidden group-hover:block p-2 z-50 border border-gray-200">
+                        <button 
+                            onClick={async () => {
+                                await authClient.signOut();
+                                window.location.reload();
+                            }} 
+                            className="w-full text-left p-2 hover:bg-gray-100 text-sm font-medium text-red-600"
+                        >
+                            Sign Out
+                        </button>
+                    </div>
+                </>
+              ) : (
+                <div onClick={handleSignIn}>
+                  <span className="text-xs">Hello, sign in</span>
+                  <p className="font-bold">Account & Lists</p>
+                </div>
+              )}
             </div>
 
             {/* Orders */}

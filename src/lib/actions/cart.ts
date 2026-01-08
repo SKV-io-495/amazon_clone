@@ -5,15 +5,20 @@ import { carts, products } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { DEFAULT_USER_ID } from '@/lib/constants';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 // Add to Cart
 export async function addToCart(productId: string) {
   try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = session?.user?.id || DEFAULT_USER_ID;
+
     // Check if item exists
     const existingItem = await db.select()
       .from(carts)
       .where(and(
-        eq(carts.userId, DEFAULT_USER_ID),
+        eq(carts.userId, userId),
         eq(carts.productId, productId)
       ))
       .limit(1);
@@ -26,7 +31,7 @@ export async function addToCart(productId: string) {
     } else {
       // Insert new item
       await db.insert(carts).values({
-        userId: DEFAULT_USER_ID,
+        userId: userId,
         productId: productId,
         quantity: 1,
       });
@@ -45,12 +50,14 @@ export async function addToCart(productId: string) {
 export async function updateQuantity(itemId: string, quantity: number) {
   try {
     if (quantity < 1) return;
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = session?.user?.id || DEFAULT_USER_ID;
     
     await db.update(carts)
       .set({ quantity })
       .where(and(
         eq(carts.id, itemId),
-        eq(carts.userId, DEFAULT_USER_ID)
+        eq(carts.userId, userId)
       ));
 
     revalidatePath('/cart');
@@ -63,10 +70,13 @@ export async function updateQuantity(itemId: string, quantity: number) {
 // Delete Item
 export async function deleteItem(itemId: string) {
   try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = session?.user?.id || DEFAULT_USER_ID;
+
     await db.delete(carts)
       .where(and(
         eq(carts.id, itemId),
-        eq(carts.userId, DEFAULT_USER_ID)
+        eq(carts.userId, userId)
       ));
 
     revalidatePath('/cart');
@@ -79,6 +89,9 @@ export async function deleteItem(itemId: string) {
 // Get Cart Items
 export async function getCart() {
   try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = session?.user?.id || DEFAULT_USER_ID;
+
     const items = await db.select({
       id: carts.id,
       productId: carts.productId,
@@ -91,7 +104,7 @@ export async function getCart() {
     })
     .from(carts)
     .innerJoin(products, eq(carts.productId, products.id))
-    .where(eq(carts.userId, DEFAULT_USER_ID));
+    .where(eq(carts.userId, userId));
 
     return items;
   } catch (error) {
@@ -103,9 +116,12 @@ export async function getCart() {
 // Get Cart Count
 export async function getCartCount() {
     try {
+        const session = await auth.api.getSession({ headers: await headers() });
+        const userId = session?.user?.id || DEFAULT_USER_ID;
+
         const result = await db.select({ count: sql<number>`sum(${carts.quantity})` })
             .from(carts)
-            .where(eq(carts.userId, DEFAULT_USER_ID));
+            .where(eq(carts.userId, userId));
         
         return Number(result[0]?.count) || 0;
     } catch (error) {

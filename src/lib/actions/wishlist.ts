@@ -5,13 +5,18 @@ import { wishlists } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { DEFAULT_USER_ID } from '@/lib/constants';
 import { revalidatePath } from 'next/cache';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 export async function toggleWishlist(productId: string) {
   try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = session?.user?.id || DEFAULT_USER_ID;
+
     const existing = await db.select()
       .from(wishlists)
       .where(and(
-        eq(wishlists.userId, DEFAULT_USER_ID),
+        eq(wishlists.userId, userId),
         eq(wishlists.productId, productId)
       ));
 
@@ -19,7 +24,7 @@ export async function toggleWishlist(productId: string) {
       // Remove
       await db.delete(wishlists)
         .where(and(
-          eq(wishlists.userId, DEFAULT_USER_ID),
+          eq(wishlists.userId, userId),
           eq(wishlists.productId, productId)
         ));
       revalidatePath('/');
@@ -28,7 +33,7 @@ export async function toggleWishlist(productId: string) {
     } else {
       // Add
       await db.insert(wishlists).values({
-        userId: DEFAULT_USER_ID,
+        userId: userId,
         productId: productId,
       });
       revalidatePath('/');
@@ -43,9 +48,12 @@ export async function toggleWishlist(productId: string) {
 
 export async function getWishlistItems() {
     try {
+        const session = await auth.api.getSession({ headers: await headers() });
+        const userId = session?.user?.id || DEFAULT_USER_ID;
+
         const items = await db.select()
             .from(wishlists)
-            .where(eq(wishlists.userId, DEFAULT_USER_ID));
+            .where(eq(wishlists.userId, userId));
         return items.map(item => item.productId);
     } catch (error) {
         return [];

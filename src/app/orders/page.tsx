@@ -1,19 +1,32 @@
 import { db } from '@/lib/db';
 import { orders, orderItems, products } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
-import { DEFAULT_USER_ID } from '@/lib/constants';
 import Link from 'next/link';
 import Image from 'next/image';
 
 // Since we are not strictly using Drizzle Relations in the schema files yet (based on previous observations), 
 // we will use a robust Join approach to fetch the data.
-// If relations existed, we could use db.query.orders.findMany({...})
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import AuthRequired from '@/components/AuthRequired';
+
+// ... imports
 
 export default async function OrdersPage() {
+  const session = await auth.api.getSession({
+     headers: await headers()
+  });
+
+  if (!session) {
+     return <AuthRequired title="Your Orders" />;
+  }
+
+  const userId = session.user.id;
+
   // Fetch orders
   const userOrders = await db.select()
     .from(orders)
-    .where(eq(orders.userId, DEFAULT_USER_ID))
+    .where(eq(orders.userId, userId))
     .orderBy(desc(orders.createdAt));
 
   // For each order, fetch items (Need to be careful with N+1, but for a simple clone this is fine and clear)
